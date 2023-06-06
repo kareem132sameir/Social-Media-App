@@ -88,6 +88,7 @@ const login=async(req,res,next)=>{
 const updatePassword = async(req,res,next)=>{
     const {email,password,newPassword,newPassword_confirm} = req.body;
     if(!email || !password || !newPassword || !newPassword_confirm) return next(new AppError('Please enter the required info'));
+    console.log("hello world")
     const user=await User.findOne({email:email});
     if(!user) return next(new AppError('user does not exist'));
     const isMatch = user.checkPassword(password);
