@@ -20,7 +20,6 @@
 
 // module.exports = authenticateUser;
 
-
 // const jwt = require('jsonwebtoken');
 // const User = require('../Models/Users');
 
@@ -50,36 +49,39 @@
 // };
 
 // module.exports = authenticateUser;
-const jwt = require('jsonwebtoken');
-const User = require('../Models/Users');
+const jwt = require("jsonwebtoken");
+const User = require("../Models/Users");
 
 const authenticateUser = async (req, res, next) => {
   const token = req.headers.authorization;
 
   if (!token) {
-    return res.status(401).json({ message: 'Authentication failed. Token not provided.' });
+    return res
+      .status(401)
+      .json({ message: "Authentication failed. Token not provided." });
   }
 
   try {
-    const decodedToken = jwt.verify(token, 'mytoken'); // Replace 'mytoken' with your actual secret key
+    const decodedToken = jwt.verify(token, "mytoken"); // Replace 'mytoken' with your actual secret key
     const userId = decodedToken.id;
 
-    // Find the user by their ID
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(401).json({ message: 'User not found.' });
+      return res.status(401).json({ message: "User not found." });
     }
 
     // Set the userId on the req.body object
-    console.log('hi',user)
+    console.log("hi", user);
 
     req.body.userId = userId;
-console.log('hi',user)
+    console.log("hi", user);
 
     next();
   } catch (error) {
-    return res.status(401).json({ message: 'Authentication failed. Invalid token.' });
+    return res
+      .status(401)
+      .json({ message: "Authentication failed. Invalid token." });
   }
 };
 
