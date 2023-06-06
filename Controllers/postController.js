@@ -5,12 +5,14 @@ const Post = require('../Models/posts')
 
 const createPost = async (req, res) => {
     const { title, userId } = req.body;
+    console.log(userId)
     const post = new Post({ title, userId, publishDate: new Date() });
     await post.save();
     res.send({ message: 'Post created successfully', post });
 
   };
-  
+
+
   const getAllPosts = async (req, res) => {
     const posts = await Post.find({});
     res.send({ message: 'All posts retrieved successfully', posts });
