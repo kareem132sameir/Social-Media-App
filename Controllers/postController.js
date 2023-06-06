@@ -44,6 +44,7 @@
 //     deleteAllPosts,
 //   };
 const Post = require("../Models/posts");
+const Comment = require("../Models/comments");
 
 const createPost = async (req, res) => {
   const { title, userId } = req.body;
@@ -91,6 +92,11 @@ const deleteAllPostsByUser = async (req, res) => {
   await Post.deleteMany({ userId });
   res.send({ message: "All posts deleted successfully" });
 };
+const getAllCommentsByPost = async (req, res) => {
+  const { postId } = req.params;
+  const comments = await Comment.find({ postId });
+  res.send({ message: "All comments retrieved successfully", comments });
+};
 
 module.exports = {
   createPost,
@@ -101,4 +107,5 @@ module.exports = {
   deleteAllPosts,
   getAllPostsByUser,
   deleteAllPostsByUser,
+  getAllCommentsByPost,
 };
