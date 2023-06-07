@@ -43,4 +43,5 @@ UsersSchema.methods.checkPassword= async function(password) {
 }
 
 const User=mongoose.model('fbUsers',UsersSchema)
+
 module.exports=User;

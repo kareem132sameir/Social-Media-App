@@ -15,21 +15,20 @@ cloudinary.config({
 
 const uploadFile=async(req,res,next)=>
 {
-    ///////////////// <-finding user-> /////////////////////
-    const user=await User.findOne({_id:req.id});
+    const token=req.headers.authorization;
+    if(!token) return next(new AppError('please provide a token'))
+    const user_id=jwt.verify(token,'mytoken');
+    const id=user_id.id;
+    const user=await User.findOne({_id:id});
     if(!user) return next(new AppError('user does not exist'));
-
-    ///////////////// <-checking the uploaded file-> /////////////////////
     if(!req.file) return next(new AppError('please upload your photo'))
     const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-        public_id: req.file.filename
+        public_id: req.file.originalname
       });
-      console.log(uploadResult);
-      console.log(req.file);
-    ///////////////// <-pushing the uploaded photo url to the user photos-> /////////////////////
+    console.log(uploadResult.url);
+    console.log(user.photo_url);
     user.photo_url.push(uploadResult.url);
     await user.save();
-    user.password=undefined;
     res.send(user);
 }
 
@@ -41,11 +40,8 @@ const getUsers=async(req,res,next)=>
 }
 
 const signUp=async(req,res,next)=>{
-    ///////////////// <-checking input-> /////////////////////
     const {email,username,role,password,password_confirm}=req.body;
     if(!email ||!username || !role||!password || !password_confirm) return next(new AppError('Please enter the required info'));
-    
-    ///////////////// <-checking if user exists-> /////////////////////
     const user=await User.findOne({email});
     if(user) 
     {
@@ -63,35 +59,39 @@ const signUp=async(req,res,next)=>{
 }
 
 const login=async(req,res,next)=>{
-    /////////////////checking email and password/////////////////////
     const {email,password}=req.body;
     if(!email || !password) return next(new AppError('Please enter the required info'));
-    
-    /////////////////finding the user/////////////////////
-    const user=await User.findOne({email});
-    if(!user) return next(new AppError('user does not exist'))
-    
-    /////////////////checking if email matches entered password/////////////////////
-    const isMatch=await user.checkPassword(password);
-    if(!isMatch) return next(new AppError('wrong password'));
-    
-    /////////////////sendin a token to the user/////////////////////
-    const token=jwt.sign({id:user._id},'mytoken');
-    user.password = undefined;
-    res.send({user,token});
+    const user_01=await User.findOne({email:email});
+    const user_02=await User.findOne({username:email});
+    if(user_01)
+    {
+        const isMatch=await user_01.checkPassword(password);
+        if(!isMatch) return next(new AppError('wrong password'));
+        const token=jwt.sign({id:user_01._id},'mytoken');
+        user_01.password = undefined;
+        res.send({user_01,token});
+    }
+    else if(user_02)
+    {
+        const isMatch=await user_02.checkPassword(password);
+        if(!isMatch) return next(new AppError('wrong password'));
+        const token=jwt.sign({id:user_02._id},'mytoken');
+        user_02.password = undefined;
+        res.send({user_02,token});
+    }
+    else
+    {
+        return next(new AppError('user does not exist')); 
+    }
 }
 
 const updatePassword = async(req,res,next)=>{
-    ///////////////// <-finding user-> /////////////////////
-    const user=await User.findOne({_id:req.id});
-    if(!user) return next(new AppError('user does not exist'));
-
-    ///////////////// <-checking input-> /////////////////////
     const {email,password,newPassword,newPassword_confirm} = req.body;
     if(!email || !password || !newPassword || !newPassword_confirm) return next(new AppError('Please enter the required info'));
-
-    ///////////////// <-checking old password-> /////////////////////
-    const isMatch = await user.checkPassword(password);
+    console.log("hello world")
+    const user=await User.findOne({email:email});
+    if(!user) return next(new AppError('user does not exist'));
+    const isMatch = user.checkPassword(password);
     if(!isMatch) return next(new AppError('wrong password'));
     try
     {
@@ -101,14 +101,17 @@ const updatePassword = async(req,res,next)=>{
     {
         return next(err);
     }
-    await user.savePassword(newPassword);
-    user.password=undefined;
+    user.savePassword(newPassword);
     res.send(user);
 }
 
 const deleteUser=async (req,res,next)=>{
-
-    const admin=await User.findById(req.id);
+    const token=req.headers.authorization;
+    if(!token) return next(new AppError('please provide a token'))
+    const user_id=jwt.verify(token,'mytoken');
+    const {email}=req.body;
+    const id=user_id.id;
+    const admin=await User.findById(id);
     if(!admin)
     {
         return next(new AppError('user not found'));
