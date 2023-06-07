@@ -165,37 +165,82 @@ const createReview = async (req, res, next) => {
     return next(new AppError("Error creating review", 500));
   }
 };
-const updateReview = async (req, res, next) => {
-  const { description, postId, rate } = req.body;
+// const updateReview = async (req, res, next) => {
+//   const { description, postId, rate } = req.body;
 
-  if (!description || rate === undefined || !postId) {
+//   if (!description || rate === undefined || !postId) {
+//     return next(
+//       new AppError(
+//         "You must provide description, rate, and postId for updating the review",
+//         400
+//       )
+//     );
+//   }
+
+//   try {
+//     const post = await Post.findById(postId);
+
+//     if (!post) {
+//       return next(new AppError("Post not found", 404));
+//     }
+
+//     const updatedReview = await Review.findOneAndUpdate(
+//       { _id: req.params.id, userId: req.authorizedUser.id },
+//       req.body,
+//       { new: true, runValidators: true }
+//     );
+
+//     if (!updatedReview) {
+//       return next(new AppError("Review not found", 404));
+//     }
+
+//     // Verify the user ID matches the logged-in user
+//     if (req.authorizedUser.id !== updatedReview.userId) {
+//       return next(
+//         new AppError("User ID does not match the logged-in user", 401)
+//       );
+//     }
+
+//     res.send(updatedReview);
+//   } catch (error) {
+//     return next(new AppError("Error updating review", 500));
+//   }
+// };
+const updateReview = async (req, res, next) => {
+  const { description, rate } = req.body;
+
+  if (!description || rate === undefined) {
     return next(
       new AppError(
-        "You must provide description, rate, and postId for updating the review",
+        "You must provide description and rate for updating the review",
         400
       )
     );
   }
 
   try {
-    const post = await Post.findById(postId);
+    const review = await Review.findOne({
+      _id: req.params.id,
+      userId: req.authorizedUser.id,
+    });
 
-    if (!post) {
-      return next(new AppError("Post not found", 404));
-    }
-
-    const updatedReview = await Review.findOneAndUpdate(
-      { _id: req.params.id, userId: req.authorizedUser.id },
-      req.body,
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedReview) {
+    if (!review) {
       return next(new AppError("Review not found", 404));
     }
 
+    // Compare the review ID with the created review ID
+    if (req.params.id !== review._id.toString()) {
+      return next(new AppError("Invalid review ID", 400));
+    }
+
+    // Update the review properties
+    review.description = description;
+    review.Rate = rate;
+
+    const updatedReview = await review.save();
+
     // Verify the user ID matches the logged-in user
-    if (req.authorizedUser.id !== updatedReview.userId) {
+    if (req.authorizedUser.id !== updatedReview.userId.toString()) {
       return next(
         new AppError("User ID does not match the logged-in user", 401)
       );
