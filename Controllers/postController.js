@@ -76,6 +76,7 @@ const deletePostById = async (req, res) => {
 };
 
 const deleteAllPosts = async (req, res) => {
+  //needs a fix
   await Post.deleteMany({});
   res.send({ message: "All posts deleted successfully" });
 };
