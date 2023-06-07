@@ -95,7 +95,7 @@ const updatePostById = async (req, res,next) => {
   {
     return next(err);
   }
-};
+
 
 /////////////delete methods////////////////
 
