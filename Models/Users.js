@@ -13,7 +13,7 @@ const UsersSchema = new Schema({
     },
     role:{
         type:String,
-        enum:['admin', 'user','creator'],
+        enum:['admin', 'user'],
         required:[true,'please enter a username']
     },
     password:{
@@ -32,8 +32,9 @@ const UsersSchema = new Schema({
 
 
 UsersSchema.methods.savePassword= async function(password) {
-    const hashed_password = await bcrypt.hash(password);
+    const hashed_password = await bcrypt.hash(password,10);
     this.password = hashed_password
+    await this.save();
 }
 
 UsersSchema.methods.checkPassword= async function(password) {
@@ -42,4 +43,5 @@ UsersSchema.methods.checkPassword= async function(password) {
 }
 
 const User=mongoose.model('fbUsers',UsersSchema)
+
 module.exports=User;

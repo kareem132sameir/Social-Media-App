@@ -4,19 +4,20 @@ const {getUsers,signUp,login,updatePassword,deleteUser,uploadFile}=require('../C
 const {verifySignUp}=require('../Helpers/validationSchema');
 const multer  = require('multer');
 const upload = multer({ dest: 'uploads/' });
+const verifyToken=require('../Helpers/tokenAuth');
 
 
 routes.get('/',getUsers);
-
-routes.post('/upload', upload.single('photo'),uploadFile);
 
 routes.post('/signup',verifySignUp,signUp);
 
 routes.post('/login',login);
 
-routes.patch('/',updatePassword);
+routes.post('/upload',verifyToken,upload.single('photo'),uploadFile);
 
-routes.delete('/',deleteUser);
+routes.patch('/update',verifyToken,updatePassword);
+
+routes.delete('/',verifyToken,deleteUser);
 
 routes.use((err,req,res,next)=>{
 	const statusCode = err.statusCode || 500;
