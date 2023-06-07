@@ -1,7 +1,6 @@
 const jwt=require('jsonwebtoken');
 const AppError=require('../Helpers/AppError');
 
-
 const verifyToken=async(req,res,next)=>{
     const token=req.headers.authorization;
     if(!token) return next(new AppError('please provide a token'));
