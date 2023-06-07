@@ -76,7 +76,7 @@ const deletePostById = async (req, res) => {
 };
 
 const deleteAllPosts = async (req, res) => {
-  //needs a fix
+  //this deletes all the database carerful when using
   await Post.deleteMany({});
   res.send({ message: "All posts deleted successfully" });
 };

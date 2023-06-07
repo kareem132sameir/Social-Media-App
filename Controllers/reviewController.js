@@ -1,28 +1,170 @@
 const Review = require("../Models/reviewModel");
+const AppError = require("../Helpers/AppError");
 
-const createReview = async (req, res) => {
-  const { description, userId, postId } = req.body;
-  const review = new Review({
-    description,
-    publishDate: new Date(),
-    userId,
-    postId,
-  });
-  await review.save();
-  res.send(review);
+// const createReview = async (req, res, next) => {
+//   const { description, userId, postId, rate } = req.body;
+
+//   if (rate < 0 || rate > 10) {
+//     return next(new AppError("Rate must be a number between 0 and 10", 400));
+//   }
+
+//   try {
+//     const review = new Review({
+//       description,
+//       Rate: rate,
+//       userId,
+//       postId,
+//     });
+
+//     const savedReview = await review.save();
+//     res.send(savedReview);
+//   } catch (error) {
+//     return next(new AppError("Error creating review", 500));
+//   }
+// };
+
+// const createReview = async (req, res, next) => {
+//   const { description, userId, postId, rate } = req.body;
+
+//   if (rate < 0 || rate > 10) {
+//     return next(new AppError("Rate must be a number between 0 and 10", 400));
+//   }
+
+//   try {
+//     const review = new Review({
+//       description,
+//       Rate: rate,
+//       userId,
+//       postId,
+//     });
+
+//     const savedReview = await review.save();
+//     res.send(savedReview);
+//   } catch (error) {
+//     if (error.name === "ValidationError") {
+//       const errorMessage = Object.values(error.errors)
+//         .map((err) => err.message)
+//         .join(". ");
+//       return next(new AppError(errorMessage, 400));
+//     }
+
+//     return next(new AppError("Error creating review", 500));
+//   }
+// };
+
+// const updateReview = async (req, res, next) => {
+//   try {
+//     const updatedReview = await Review.findByIdAndUpdate(
+//       { _id: req.params.id },
+//       req.body,
+//       { new: true }
+//     );
+
+//     if (!updatedReview) {
+//       return next(new AppError("Review not found", 404));
+//     }
+
+//     res.send(updatedReview);
+//   } catch (error) {
+//     return next(new AppError("Error updating review", 500));
+//   }
+// };
+
+// const deleteReview = async (req, res, next) => {
+//   try {
+//     const deletedReview = await Review.findByIdAndDelete({
+//       _id: req.params.id,
+//     });
+
+//     if (!deletedReview) {
+//       return next(new AppError("Review not found", 404));
+//     }
+
+//     res.send("Review deleted successfully");
+//   } catch (error) {
+//     return next(new AppError("Error deleting review", 500));
+//   }
+// };
+
+// module.exports = { createReview, updateReview, deleteReview };
+
+const createReview = async (req, res, next) => {
+  const { description, postId, rate } = req.body;
+
+  if (!description || !postId || rate === undefined) {
+    return next(new AppError("You must provide all review data", 400));
+  }
+
+  if (rate < 0 || rate > 10) {
+    return next(new AppError("Rate must be a number between 0 and 10", 400));
+  }
+  try {
+    const review = new Review({
+      description,
+      Rate: rate,
+      userId: req.user.id, // Accessing the user ID from req.user
+      postId,
+    });
+    console.log(req.user.id);
+
+    const savedReview = await review.save();
+    res.send(savedReview);
+  } catch (error) {
+    if (error.name === "ValidationError") {
+      const errorMessage = Object.values(error.errors)
+        .map((err) => err.message)
+        .join(". ");
+      return next(new AppError(errorMessage, 400));
+    }
+
+    return next(new AppError("Error creating review", 500));
+  }
 };
 
-const updateReview = async (req, res) => {
-  const review = await Review.findByIdAndUpdate(
-    { _id: req.params.id },
-    req.body
-  );
-  res.send(review);
+const updateReview = async (req, res, next) => {
+  const { description, rate } = req.body;
+
+  if (!description || rate === undefined) {
+    return next(
+      new AppError(
+        "You must provide description and rate for updating the review",
+        400
+      )
+    );
+  }
+
+  try {
+    const updatedReview = await Review.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user.id }, // Using both id and userId in the query
+      req.body,
+      { new: true }
+    );
+
+    if (!updatedReview) {
+      return next(new AppError("Review not found", 404));
+    }
+
+    res.send(updatedReview);
+  } catch (error) {
+    return next(new AppError("Error updating review", 500));
+  }
 };
 
-const deleteReview = async (req, res) => {
-  await Review.findByIdAndDelete({ _id: req.params.id });
-  res.send("review Deleted Successfully !!");
+const deleteReview = async (req, res, next) => {
+  try {
+    const deletedReview = await Review.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user.id, // Adding userId to the query
+    });
+
+    if (!deletedReview) {
+      return next(new AppError("Review not found", 404));
+    }
+
+    res.send("Review deleted successfully");
+  } catch (error) {
+    return next(new AppError("Error deleting review", 500));
+  }
 };
 
 module.exports = { createReview, updateReview, deleteReview };
