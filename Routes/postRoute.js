@@ -8,18 +8,34 @@ const {
   deleteAllPosts,
   getAllPostsByUser,
   deleteAllPostsByUser,
-  getAllCommentsByPost,
+  getAllCommentsByPost
 } = require("../Controllers/postController");
+const verifyAdmin = require("../Helpers/verifyAdmin");
 const routers = express.Router();
 
-routers.post("/", createPost);
+
+/////////////get methods////////////////
 routers.get("/", getAllPosts);
 routers.get("/:id", getPostById);
+routers.get("/user/:userId", getAllPostsByUser);
+routers.get("/:postId/comments", getAllCommentsByPost); // Add this line
+
+
+/////////////post methods////////////////
+routers.post("/", createPost);
+
+
+/////////////patch methods////////////////
 routers.patch("/:id", updatePostById);
+
+
+/////////////delete methods////////////////
 routers.delete("/:id", deletePostById);
 routers.delete("/", deleteAllPosts);
-routers.get("/user/:userId", getAllPostsByUser);
-routers.delete("/user/:userId", deleteAllPostsByUser);
-routers.get("/:postId/comments", getAllCommentsByPost); // Add this line
+
+
+/////////////Admin delete methods////////////////
+routers.delete("/user/:userId",verifyAdmin,deleteAllPostsByUser);
+
 
 module.exports = routers;
