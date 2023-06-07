@@ -5,6 +5,7 @@ const {verifySignUp}=require('../Helpers/validationSchema');
 const multer  = require('multer');
 const upload = multer({ dest: 'uploads/' });
 const verifyToken=require('../Helpers/tokenAuth');
+const verifyAdmin = require('../Helpers/verifyAdmin');
 
 
 routes.get('/',getUsers);
@@ -17,7 +18,7 @@ routes.post('/upload',verifyToken,upload.single('photo'),uploadFile);
 
 routes.patch('/update',verifyToken,updatePassword);
 
-routes.delete('/',verifyToken,deleteUser);
+routes.delete('/',verifyToken,verifyAdmin,deleteUser);
 
 routes.use((err,req,res,next)=>{
 	const statusCode = err.statusCode || 500;

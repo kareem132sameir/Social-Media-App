@@ -106,31 +106,11 @@ const updatePassword = async(req,res,next)=>{
 }
 
 const deleteUser=async (req,res,next)=>{
-    const token=req.headers.authorization;
-    if(!token) return next(new AppError('please provide a token'))
-    const user_id=jwt.verify(token,'mytoken');
     const {email}=req.body;
-    const id=user_id.id;
-    const admin=await User.findById(id);
-    if(!admin)
-    {
-        return next(new AppError('user not found'));
-    }
-    else
-    {
-        if(admin.role=='admin')
-        {
-            const user=await User.findOne({email:email});
-            if(!user) return next(new AppError('user does not exist'));
-            await User.deleteOne({email:email});
-            res.send("removed user");
-        }
-        else
-        {
-            return next(new AppError('user is not an admin'));
-        }
-    }
-    
+    const user=await User.findOne({email:email});
+    if(!user) return next(new AppError('user does not exist'));
+    await User.deleteOne({email:email});
+    res.send("removed user");
 }
 
 module.exports={getUsers,signUp,login,updatePassword,deleteUser,uploadFile};

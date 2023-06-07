@@ -25,7 +25,15 @@ const UsersSchema = new Schema({
         {
             type:String
         }
+    ],    
+    postId: [
+        {
+            type: Schema.Types.ObjectId, // Change the type to ObjectId
+            ref: 'Post', // Reference the Post model
+        }
     ]
+        
+
     
   });
 
