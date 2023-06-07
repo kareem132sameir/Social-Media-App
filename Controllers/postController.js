@@ -56,13 +56,13 @@ const getAllPostsByLoggedInUser = async (req, res,next) => {
     
 };
 
+//not finished
 const getAllCommentsByPost = async (req, res,next) => {
   const { postId } = req.params;
   const comments = await Comment.find({ postId });
   if(comments.length==0) return next(new AppError('no comments yet on this post'));
   res.send({ message: "All comments retrieved successfully", comments });
 };
-
 
 /////////////post methods////////////////
 
@@ -79,9 +79,7 @@ const createPost = async (req, res,next) => {
   res.send({ message: "Post created successfully",post});
 };
 
-
 /////////////patch methods////////////////
-
 
 //http://localhost:8080/posts/:id
 
