@@ -248,30 +248,25 @@ const updateReview = async (req, res, next) => {
   }
 };
 ////thats data sent with delete /not sure how should we do the validation
-// //{
-//   "description": "This is ass 123 comment",
-//   "rate":"6",
-//   "postId": "6480d10dd3ec28468b425775"
-// }
+
 const deleteReview = async (req, res, next) => {
   try {
     const deletedReview = await Review.findOneAndDelete({
       _id: req.params.id,
-      userId: req.authorizedUser.id, // Adding userId to the query
+      userId: req.authorizedUser.id,
     });
 
     if (!deletedReview) {
       return next(new AppError("Review not found", 404));
     }
 
-    // Verify the user ID matches the logged-in user
     if (req.authorizedUser.id !== deletedReview.userId) {
       return next(
         new AppError("User ID does not match the logged-in user", 401)
       );
     }
 
-    res.send("Review deleted successfully");
+    res.send({ message: "Review deleted successfully" }); // Send a confirmation message
   } catch (error) {
     return next(new AppError("Error deleting review", 500));
   }
