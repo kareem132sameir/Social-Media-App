@@ -86,10 +86,19 @@ const createPost = async (req, res,next) => {
 const updatePostById = async (req, res,next) => {
   try
   {
-    const post = await Post.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    res.send({ message: "Post updated successfully", post });
+    const post=await Post.findById(req.params.id);
+    if(!post) return next(new AppError('this post does not exist'));
+    if(req.authorizedUser.id==post.userId)
+    {
+      const newpost = await Post.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+      });
+      res.send({ message: "Post updated successfully", newpost });
+    }
+    else
+    {
+      res.send({ message: "you can't edit other users posts" });
+    }
   }
   catch(err)
   {
