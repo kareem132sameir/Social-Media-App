@@ -47,56 +47,28 @@ const getAllPostsByLoggedInUser = async (req, res, next) => {
     return next(err);
   }
 };
-// const getAllCommentsByPost = async (req, res, next) => {
-//   const { postId } = req.params;
+//
 
-//   try {
-//     const comments = await Comment.find({ postId });
-//     console.log(comments);
-
-//     const post = await Post.findById(postId).populate("comments");
-//     console.log(post);
-
-//     if (!post) {
-//       return next(new AppError("Post not found", 404));
-//     }
-
-//     if (post.comments.length === 0) {
-//       return next(new AppError("No comments yet on this post"));
-//     }
-
-//     res.send({
-//       message: "All comments retrieved successfully",
-//       comments: post.comments,
-//     });
-//   } catch (error) {
-//     return next(new AppError("Error retrieving comments", 500));
-//   }
-// };
 const getAllCommentsByPost = async (req, res, next) => {
   const { postId } = req.params;
 
   try {
-    const comments = await Comment.find({ postId });
-    console.log(comments);
-
-    const post = await Post.findById(postId).populate("comments");
-    console.log(post);
+    const post = await Post.findById(postId)
+      .populate({
+        path: "comments",
+        select: "description",
+      })
+      .select("title");
 
     if (!post) {
       return next(new AppError("Post not found", 404));
     }
 
-    await post.populate("comments").execPopulate();
     console.log(post);
 
-    if (post.comments.length === 0) {
-      return next(new AppError("No comments yet on this post"));
-    }
-
     res.send({
-      message: "All comments retrieved successfully",
-      comments: post.comments,
+      message: "Post and comments retrieved successfully",
+      post,
     });
   } catch (error) {
     return next(new AppError("Error retrieving comments", 500));
