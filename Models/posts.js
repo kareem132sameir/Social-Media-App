@@ -2,19 +2,35 @@ const mongoose = require('mongoose')
 const {Schema} = mongoose
 
 const postSchema = new Schema({
-    title: {
+  title: {
+    type: String,
+    required: true,
+  },
+  userId: {
+    type: String,
+    required: true,
+  },
+  publishDate: {
+    type: Date,
+    default: Date.now,
+  },
+  comments: [
+    {
+      description: {
         type: String,
-        required: true,
-      },
-      userId: {
-        type: String, // Change the type to String
         required: true,
       },
       publishDate: {
         type: Date,
-        default: Date.now,
       },
-    });
+      userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    },
+  ],
+});
+
 
 
 const Post = mongoose.model('Post', postSchema)

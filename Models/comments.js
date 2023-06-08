@@ -6,6 +6,7 @@ const Post = require('./posts')
 const commentSchema = new Schema({
     description: {
       type: String,
+      required:true
     },
     publishDate: {
       type: Date,
