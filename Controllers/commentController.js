@@ -47,6 +47,7 @@
 const Comment = require("../Models/comments");
 const AppError = require("../Helpers/AppError");
 
+// 127.0.0.1:8080/comment/ post
 const createComment = async (req, res, next) => {
   const { description, postId } = req.body;
   const userId = req.body.userId; // Access the authenticated user ID from req.body
