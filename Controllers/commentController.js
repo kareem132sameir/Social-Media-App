@@ -26,47 +26,74 @@ const createComment = async (req,res,next) => {
 };
 
 
-//wip
 const updateComment = async (req,res,next) => {
   try {
-    const post=await Post.findById(req.params.id);
+    const postId=req.params.postid;
+    const commentId=req.params.commentid;
+    const post=await Post.findById(postId);
     if(!post)return next(new AppError('post no longer exists :('))
-    if (post.userId === req.id) {
-      const updatedPost = await Post.findByIdAndUpdate(
-        req.params.id,
-        {
-          $set: {
-            'comments.$[comment].description': req.body.description,
-            'comments.$[comment].publishDate': Date.now(),
+    const comment = post.comments.find(comment => comment._id.toString() === commentId);
+    if (!comment) return next(new AppError('comment no longer exists :('))
+      const userId = comment.userId;
+      if (userId == req.id) 
+      {
+        const updatedPost = await Post.findOneAndUpdate(
+          { _id: postId, 'comments._id': commentId },
+          {
+            $set: {
+              'comments.$.description': req.body.description,
+              'comments.$.publishDate': Date.now(),
+              // Add more fields to update as needed
+            },
           },
-        },
-        {
-          new: true,
-         }
-      );
-    }
-    if (!comment) {
-      return next(new AppError('comment not found'))
-    }
-    res.send({ message: "Comment updated successfully", post });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+          { new: true }
+          );
+          res.send({ message: "Comment updated successfully", updatedPost });
+      } 
+      else
+      {
+          res.send({ message: "you cannot edit other users comments" });
+      }
+  }
+  catch (error) 
+  {
+    return next(error);
   }
 };
 
-const deleteComment = async (req,res,next) => {
+
+const deleteComment = async (req, res, next) => {
   try {
-    const comment = await Comment.findByIdAndDelete(req.params.id);
-    if (!comment) {
-      return res.status(404).json({ message: "Comment not found" });
+    const postId = req.params.postid;
+    const commentId = req.params.commentid;
+
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return next(new AppError('Post no longer exists :('));
     }
-    res.send({ message: "Comment deleted successfully" });
+
+    const comment = post.comments.find(comment => comment._id.toString() === commentId);
+    if (!comment) return next(new AppError('comment no longer exists :('))
+
+    const userId = comment.userId;
+
+    if (userId == req.id || req.authorizedUser.role=='admin') {
+      const updatedPost = await Post.findOneAndUpdate(
+        { _id: postId },
+        { $pull: { comments: { _id: commentId } } },
+        { new: true }
+      );
+
+      res.send({ message: "Comment deleted successfully" ,updatedPost});
+    } else {
+      return next(new AppError('You are not authorized to delete this comment'));
+    }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    return next(error);
   }
 };
+
 
 
 

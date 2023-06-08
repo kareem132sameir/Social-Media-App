@@ -8,11 +8,12 @@ routers.post('/:id', createComment)
 
 
 /////////////patch methods////////////
-routers.patch('/:id', deleteComment)
+routers.patch('/:postid/:commentid', updateComment)
 
 
 /////////////delete methods////////////
-routers.delete('/:id', updateComment)
+routers.delete('/:postid/:commentid', deleteComment)
+
 
 routers.use((err,req,res,next)=>{
 	const statusCode = err.statusCode || 500;
