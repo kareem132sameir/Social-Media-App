@@ -4,8 +4,6 @@ const Post = require("../Models/posts");
 
 
 
-
-
 const createComment = async (req,res,next) => {
   try
   {
