@@ -47,7 +47,7 @@ const getAllPostsByLoggedInUser = async (req, res, next) => {
     return next(err);
   }
 };
-//
+//127.0.0.1:8080/posts:/{postid}/comments
 
 const getAllCommentsByPost = async (req, res, next) => {
   const { postId } = req.params;

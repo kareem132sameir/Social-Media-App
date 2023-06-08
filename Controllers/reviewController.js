@@ -116,10 +116,6 @@ const AppError = require("../Helpers/AppError");
 const createReview = async (req, res, next) => {
   const { description, postId, rate } = req.body;
 
-  console.log("Description:", description);
-  console.log("Post ID:", postId);
-  console.log("Rate:", rate);
-
   if (!description || !postId || rate === undefined) {
     return next(new AppError("You must provide all review data", 400));
   }
@@ -251,7 +247,12 @@ const updateReview = async (req, res, next) => {
     return next(new AppError("Error updating review", 500));
   }
 };
-
+////thats data sent with delete /not sure how should we do the validation
+// //{
+//   "description": "This is ass 123 comment",
+//   "rate":"6",
+//   "postId": "6480d10dd3ec28468b425775"
+// }
 const deleteReview = async (req, res, next) => {
   try {
     const deletedReview = await Review.findOneAndDelete({
