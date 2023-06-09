@@ -88,15 +88,38 @@ const getAllCommentsByPost = async (req, res, next) => {
 
 //http://localhost:8080/posts
 
+// const createPost = async (req, res, next) => {
+//   const { title } = req.body;
+//   if (!title) return next(new AppError("please enter the post conetnt!"));
+//   const post = new Post({ title, userId: req.id, publishDate: new Date() });
+//   await post.save();
+//   const user = req.authorizedUser;
+//   user.postId = post.id;
+//   await user.save();
+//   res.send({ message: "Post created successfully", post });
+// };
+
+//an edit for kimo to see
 const createPost = async (req, res, next) => {
   const { title } = req.body;
-  if (!title) return next(new AppError("please enter the post conetnt!"));
-  const post = new Post({ title, userId: req.id, publishDate: new Date() });
-  await post.save();
-  const user = req.authorizedUser;
-  user.postId = post.id;
-  await user.save();
-  res.send({ message: "Post created successfully", post });
+  const userId = req.authorizedUser.id;
+
+  if (!title) {
+    return next(new AppError("Please enter the post content!"));
+  }
+
+  const post = new Post({ title, userId, publishDate: new Date() });
+
+  try {
+    await post.save();
+
+    req.authorizedUser.postId = post.id;
+    await req.authorizedUser.save();
+
+    res.send({ message: "Post created successfully", post });
+  } catch (error) {
+    return next(new AppError("Error creating post", 500));
+  }
 };
 
 /////////////patch methods////////////////
