@@ -25,7 +25,15 @@ const UsersSchema = new Schema({
         {
             type:String
         }
+    ],    
+    postId: [
+        {
+            type: Schema.Types.ObjectId, // Change the type to ObjectId
+            ref: 'Post', // Reference the Post model
+        }
     ]
+        
+
     
   });
 
@@ -43,4 +51,5 @@ UsersSchema.methods.checkPassword= async function(password) {
 }
 
 const User=mongoose.model('fbUsers',UsersSchema)
+
 module.exports=User;
