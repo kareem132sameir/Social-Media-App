@@ -1,6 +1,6 @@
 const express=require('express');
 const routes=express();
-const {getUsers,signUp,login,updatePassword,deleteUser,uploadFile}=require('../Controllers/authenticationController');
+const {getUsers,getUsersById,signUp,login,updatePassword,deleteUser,uploadFile}=require('../Controllers/authenticationController');
 const {verifySignUp}=require('../Helpers/validationSchema');
 const multer  = require('multer');
 const upload = multer({ dest: 'uploads/' });
@@ -11,6 +11,7 @@ const verifyAdmin = require('../Helpers/verifyAdmin');
 
 routes.get('/',getUsers);
 
+routes.get('/:id',getUsersById);
 
 //////////post methods///////////
 

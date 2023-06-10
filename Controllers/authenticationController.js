@@ -32,6 +32,23 @@ const getUsers=async(req,res,next)=>
     }
 }
 
+//http://localhost:8080/users
+
+
+const getUsersById=async(req,res,next)=>
+{
+    try
+    {
+        const user=await User.findById(req.params.id).select("-password")
+        if(!user) return next(new AppError('User not found'));
+        res.send(user);
+    }
+    catch(error)
+    {
+        return next(error);
+    }
+}
+
 ////////////////////////////////////post methods//////////////////////////////////
 
 //http://localhost:8080/users/signup
@@ -170,4 +187,4 @@ const deleteUser=async (req,res,next)=>{
     }
 }
 
-module.exports={getUsers,signUp,login,updatePassword,deleteUser,uploadFile};
+module.exports={getUsers,getUsersById,signUp,login,updatePassword,deleteUser,uploadFile};

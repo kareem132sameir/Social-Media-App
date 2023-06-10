@@ -5,12 +5,19 @@ const AppError = require("../Helpers/AppError");
 
 /////////////get methods////////////////
 
-//http://localhost:8080/posts/user/
+//http://localhost:8080/posts/
 
 const getAllPosts = async (req, res, next) => {
-  const posts = await Post.find();
-  if (posts.length == 0) return next(new AppError("no posts found!"));
-  res.send({ message: "All posts retrieved successfully", posts });
+  try
+  {
+    const posts = await Post.find();
+    if (posts.length == 0) return next(new AppError("no posts found!"));
+    res.send({ message: "All posts retrieved successfully", posts });
+  }
+  catch(error)
+  {
+    return next(error);
+  }
 };
 
 //http://localhost:8080/posts/:id
@@ -47,17 +54,16 @@ const getAllPostsByLoggedInUser = async (req, res, next) => {
     return next(err);
   }
 };
-//127.0.0.1:8080/posts:/{postid}/comments
 
 //http://localhost:8080/postId/comments
 
-//get all comments on a post without the post 
 
 const getAllCommentsByPost = async (req, res,next) => {
   try
   {
     const { postId } = req.params;
-    const comments = await Comment.find({ postId });
+    const post=await Post.findById(postId);
+    const comments = post.comments;
     if(comments.length==0) return next(new AppError('no comments yet on this post'));
     res.send({ message: "All comments retrieved successfully", comments });
   }
@@ -72,37 +78,23 @@ const getAllCommentsByPost = async (req, res,next) => {
 
 //http://localhost:8080/posts
 
-// const createPost = async (req, res, next) => {
-//   const { title } = req.body;
-//   if (!title) return next(new AppError("please enter the post conetnt!"));
-//   const post = new Post({ title, userId: req.id, publishDate: new Date() });
-//   await post.save();
-//   const user = req.authorizedUser;
-//   user.postId = post.id;
-//   await user.save();
-//   res.send({ message: "Post created successfully", post });
-// };
 
-//an edit for kimo to see
 const createPost = async (req, res, next) => {
-  const { title } = req.body;
-  const userId = req.authorizedUser.id;
-
-  if (!title) {
-    return next(new AppError("Please enter the post content!"));
-  }
-
-  const post = new Post({ title, userId, publishDate: new Date() });
-
-  try {
+  try
+  {
+    const { title } = req.body;
+    const userId = req.id;
+    if (!title)return next(new AppError("Please enter the post content!"));
+    const post = new Post({ title, userId, publishDate: new Date() });
     await post.save();
-
-    req.authorizedUser.postId = post.id;
+    const user=req.authorizedUser;
+    user.postId.push(post.id);
     await req.authorizedUser.save();
-
     res.send({ message: "Post created successfully", post });
-  } catch (error) {
-    return next(new AppError("Error creating post", 500));
+  }
+  catch(error)
+  {
+    return next(error);
   }
 };
 
@@ -169,11 +161,13 @@ const deleteAllPosts = async (req, res, next) => {
 //http://localhost:8080/posts/user/:id
 
 const deleteAllPostsByUser = async (req, res, next) => {
-  const { userId } = req.params;
   try {
+    const { userId } = req.params;
     await Post.deleteMany({ userId });
     res.send({ message: "All posts deleted successfully" });
-  } catch (err) {
+  } 
+  catch (err) 
+  {
     return next(err);
   }
 };
