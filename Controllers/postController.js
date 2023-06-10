@@ -7,10 +7,27 @@ const Review = require("../Models/reviewModel");
 
 //http://localhost:8080/posts/
 
+// const getAllPosts = async (req, res, next) => {
+//   try {
+//     const posts = await Post.find();
+//     if (posts.length == 0) return next(new AppError("no posts found!"));
+//     res.send({ message: "All posts retrieved successfully", posts });
+//   } catch (error) {
+//     return next(error);
+//   }
+// };
 const getAllPosts = async (req, res, next) => {
   try {
     const posts = await Post.find();
-    if (posts.length == 0) return next(new AppError("no posts found!"));
+    if (posts.length === 0) {
+      return next(new AppError("No posts found!", 404));
+    }
+
+    for (const post of posts) {
+      const reviews = await Review.find({ postId: post._id });
+      post.reviews = reviews;
+    }
+
     res.send({ message: "All posts retrieved successfully", posts });
   } catch (error) {
     return next(error);
@@ -41,21 +58,61 @@ const getPostById = async (req, res, next) => {
 
 //http://localhost:8080/posts/user/:id
 
+// const getAllPostsByUser = async (req, res, next) => {
+//   console.log(req.params.id);
+//   const user = await User.findById(req.params.id);
+//   if (!user) return next(new AppError("user does not exist"));
+//   const posts = await Post.find({ userId: req.params.id });
+//   if (posts.length == 0) return next(new AppError("no posts found!"));
+//   res.send({ message: "All posts retrieved successfully", posts });
+// };
 const getAllPostsByUser = async (req, res, next) => {
-  console.log(req.params.id);
-  const user = await User.findById(req.params.id);
-  if (!user) return next(new AppError("user does not exist"));
-  const posts = await Post.find({ userId: req.params.id });
-  if (posts.length == 0) return next(new AppError("no posts found!"));
-  res.send({ message: "All posts retrieved successfully", posts });
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
+    if (!user) {
+      return next(new AppError("User does not exist", 404));
+    }
+
+    const posts = await Post.find({ userId: id });
+    if (posts.length === 0) {
+      return next(new AppError("No posts found!", 404));
+    }
+
+    for (const post of posts) {
+      const reviews = await Review.find({ postId: post._id });
+      post.reviews = reviews;
+    }
+
+    res.send({ message: "All posts retrieved successfully", posts });
+  } catch (err) {
+    return next(err);
+  }
 };
 
 //http://localhost:8080/posts/userposts
 
+// const getAllPostsByLoggedInUser = async (req, res, next) => {
+//   try {
+//     const posts = await Post.find({ userId: req.id });
+//     if (posts.length == 0) return next(new AppError("no posts found!"));
+//     res.send({ message: "All posts retrieved successfully", posts });
+//   } catch (err) {
+//     return next(err);
+//   }
+// };
 const getAllPostsByLoggedInUser = async (req, res, next) => {
   try {
     const posts = await Post.find({ userId: req.id });
-    if (posts.length == 0) return next(new AppError("no posts found!"));
+    if (posts.length === 0) {
+      return next(new AppError("No posts found!", 404));
+    }
+
+    for (const post of posts) {
+      const reviews = await Review.find({ postId: post._id });
+      post.reviews = reviews;
+    }
+
     res.send({ message: "All posts retrieved successfully", posts });
   } catch (err) {
     return next(err);
