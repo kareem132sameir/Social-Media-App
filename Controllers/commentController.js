@@ -1,6 +1,4 @@
-
 const AppError = require("../Helpers/AppError");
-const Comment = require("../Models/comments");
 const Post = require("../Models/posts");
 
 
@@ -12,6 +10,7 @@ const createComment = async (req,res,next) => {
     const post=await Post.findById(postId)
     if(!post)  return next(new AppError('sorry this post no longer exists :('))
     const { description } = req.body;
+    if(!description) return next(new AppError('please enter your comment'));
     const userId = req.id  // Access the authenticated user ID from req.body
     const comment={description,publishDate:Date.now(),userId}
     post.comments.push(comment);
@@ -61,7 +60,8 @@ const updateComment = async (req,res,next) => {
 };
 
 
-const deleteComment = async (req, res, next) => {
+const deleteComment = async (req, res, next) => 
+{
   try {
     const postId = req.params.postid;
     const commentId = req.params.commentid;
@@ -90,7 +90,7 @@ const deleteComment = async (req, res, next) => {
     }
   } catch (error) {
     return next(error);
+  }
 
-
-
+}
 module.exports = { createComment, updateComment, deleteComment };

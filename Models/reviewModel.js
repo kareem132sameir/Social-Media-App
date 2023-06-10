@@ -6,7 +6,7 @@ const reviewSchema = new Schema({
     type: String,
     required: true,
   },
-  Rate: {
+  rate: {
     type: Number,
     required: true,
     min: 0,

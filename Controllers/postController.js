@@ -1,24 +1,38 @@
 const Post = require("../Models/posts");
-const Comment = require("../Models/comments");
 const User = require("../Models/Users");
 const AppError = require("../Helpers/AppError");
+const Review = require("../Models/reviewModel");
 
 /////////////get methods////////////////
 
-//http://localhost:8080/posts/user/
+//http://localhost:8080/posts/
 
 const getAllPosts = async (req, res, next) => {
-  const posts = await Post.find();
-  if (posts.length == 0) return next(new AppError("no posts found!"));
-  res.send({ message: "All posts retrieved successfully", posts });
+  try {
+    const posts = await Post.find();
+    if (posts.length == 0) return next(new AppError("no posts found!"));
+    res.send({ message: "All posts retrieved successfully", posts });
+  } catch (error) {
+    return next(error);
+  }
 };
 
 //http://localhost:8080/posts/:id
 
 const getPostById = async (req, res, next) => {
   try {
-    const post = await Post.findById(req.params.id);
-    if (!post) return next(new AppError("post not found :/"));
+    const { id } = req.params;
+
+    const post = await Post.findById(id);
+
+    if (!post) {
+      return next(new AppError("Post not found", 404));
+    }
+
+    const reviews = await Review.find({ postId: id });
+
+    post.reviews = reviews;
+
     res.send({ message: "Post retrieved successfully", post });
   } catch (err) {
     return next(err);
@@ -47,21 +61,19 @@ const getAllPostsByLoggedInUser = async (req, res, next) => {
     return next(err);
   }
 };
-//127.0.0.1:8080/posts:/{postid}/comments
 
 //http://localhost:8080/postId/comments
-const getAllCommentsByPost = async (req, res,next) => {
-  try
-  {
-    const { postId } = req.params;
-    const comments = await Comment.find({ postId });
-    if(comments.length==0) return next(new AppError('no comments yet on this post'));
-    res.send({ message: "All comments retrieved successfully", comments });
-  }
-  catch(err)
-  {
-    return next(err);
 
+const getAllCommentsByPost = async (req, res, next) => {
+  try {
+    const { postId } = req.params;
+    const post = await Post.findById(postId);
+    const comments = post.comments;
+    if (comments.length == 0)
+      return next(new AppError("no comments yet on this post"));
+    res.send({ message: "All comments retrieved successfully", comments });
+  } catch (err) {
+    return next(err);
   }
 };
 
@@ -69,37 +81,19 @@ const getAllCommentsByPost = async (req, res,next) => {
 
 //http://localhost:8080/posts
 
-// const createPost = async (req, res, next) => {
-//   const { title } = req.body;
-//   if (!title) return next(new AppError("please enter the post conetnt!"));
-//   const post = new Post({ title, userId: req.id, publishDate: new Date() });
-//   await post.save();
-//   const user = req.authorizedUser;
-//   user.postId = post.id;
-//   await user.save();
-//   res.send({ message: "Post created successfully", post });
-// };
-
-//an edit for kimo to see
 const createPost = async (req, res, next) => {
-  const { title } = req.body;
-  const userId = req.authorizedUser.id;
-
-  if (!title) {
-    return next(new AppError("Please enter the post content!"));
-  }
-
-  const post = new Post({ title, userId, publishDate: new Date() });
-
   try {
+    const { title } = req.body;
+    const userId = req.id;
+    if (!title) return next(new AppError("Please enter the post content!"));
+    const post = new Post({ title, userId, publishDate: new Date() });
     await post.save();
-
-    req.authorizedUser.postId = post.id;
+    const user = req.authorizedUser;
+    user.postId.push(post.id);
     await req.authorizedUser.save();
-
     res.send({ message: "Post created successfully", post });
   } catch (error) {
-    return next(new AppError("Error creating post", 500));
+    return next(error);
   }
 };
 
@@ -107,25 +101,19 @@ const createPost = async (req, res, next) => {
 
 //http://localhost:8080/posts/:id
 
-const updatePostById = async (req, res,next) => {
-  try
-  {
-    const post=await Post.findById(req.params.id);
-    if(!post) return next(new AppError('this post does not exist'));
-    if(req.authorizedUser.id==post.userId)
-    {
+const updatePostById = async (req, res, next) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    if (!post) return next(new AppError("this post does not exist"));
+    if (req.authorizedUser.id == post.userId) {
       const newpost = await Post.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
       });
       res.send({ message: "Post updated successfully", newpost });
-    }
-    else
-    {
+    } else {
       res.send({ message: "you can't edit other users posts" });
     }
-  }
-  catch(err)
-  {
+  } catch (err) {
     return next(err);
   }
 };
@@ -166,8 +154,8 @@ const deleteAllPosts = async (req, res, next) => {
 //http://localhost:8080/posts/user/:id
 
 const deleteAllPostsByUser = async (req, res, next) => {
-  const { userId } = req.params;
   try {
+    const { userId } = req.params;
     await Post.deleteMany({ userId });
     res.send({ message: "All posts deleted successfully" });
   } catch (err) {
