@@ -50,6 +50,9 @@ const getAllPostsByLoggedInUser = async (req, res, next) => {
 //127.0.0.1:8080/posts:/{postid}/comments
 
 //http://localhost:8080/postId/comments
+
+//get all comments on a post without the post 
+
 const getAllCommentsByPost = async (req, res,next) => {
   try
   {

@@ -1,4 +1,3 @@
-
 const AppError = require("../Helpers/AppError");
 const Comment = require("../Models/comments");
 const Post = require("../Models/posts");
@@ -61,7 +60,8 @@ const updateComment = async (req,res,next) => {
 };
 
 
-const deleteComment = async (req, res, next) => {
+const deleteComment = async (req, res, next) => 
+{
   try {
     const postId = req.params.postid;
     const commentId = req.params.commentid;
@@ -90,7 +90,7 @@ const deleteComment = async (req, res, next) => {
     }
   } catch (error) {
     return next(error);
+  }
 
-
-
+}
 module.exports = { createComment, updateComment, deleteComment };
