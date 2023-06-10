@@ -116,10 +116,6 @@ const AppError = require("../Helpers/AppError");
 const createReview = async (req, res, next) => {
   const { description, postId, rate } = req.body;
 
-  console.log("Description:", description);
-  console.log("Post ID:", postId);
-  console.log("Rate:", rate);
-
   if (!description || !postId || rate === undefined) {
     return next(new AppError("You must provide all review data", 400));
   }
@@ -251,26 +247,26 @@ const updateReview = async (req, res, next) => {
     return next(new AppError("Error updating review", 500));
   }
 };
+////thats data sent with delete /not sure how should we do the validation
 
 const deleteReview = async (req, res, next) => {
   try {
     const deletedReview = await Review.findOneAndDelete({
       _id: req.params.id,
-      userId: req.authorizedUser.id, // Adding userId to the query
+      userId: req.authorizedUser.id,
     });
 
     if (!deletedReview) {
       return next(new AppError("Review not found", 404));
     }
 
-    // Verify the user ID matches the logged-in user
     if (req.authorizedUser.id !== deletedReview.userId) {
       return next(
         new AppError("User ID does not match the logged-in user", 401)
       );
     }
 
-    res.send("Review deleted successfully");
+    res.send({ message: "Review deleted successfully" }); // Send a confirmation message
   } catch (error) {
     return next(new AppError("Error deleting review", 500));
   }

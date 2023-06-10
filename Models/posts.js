@@ -1,5 +1,6 @@
-const mongoose = require('mongoose')
-const {Schema} = mongoose
+// const mongoose = require('mongoose')
+// const {Schema} = mongoose
+
 
 const postSchema = new Schema({
   title: {
@@ -29,9 +30,20 @@ const postSchema = new Schema({
       },
     },
   ],
+  reviews: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Review",
+      required: true,
+    },
+  ],
 });
 
 
 
-const Post = mongoose.model('Post', postSchema)
-module.exports = Post
+
+
+
+
+const Post = mongoose.model("Post", postSchema);
+module.exports = Post;

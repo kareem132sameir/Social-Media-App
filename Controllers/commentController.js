@@ -1,3 +1,4 @@
+
 const AppError = require("../Helpers/AppError");
 const Comment = require("../Models/comments");
 const Post = require("../Models/posts");
@@ -89,9 +90,6 @@ const deleteComment = async (req, res, next) => {
     }
   } catch (error) {
     return next(error);
-  }
-};
-
 
 
 

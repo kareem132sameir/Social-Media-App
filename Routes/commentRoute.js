@@ -1,5 +1,9 @@
-const express = require('express');
-const {createComment, updateComment, deleteComment} = require('../Controllers/commentController')
+const express = require("express");
+const {
+  createComment,
+  updateComment,
+  deleteComment,
+} = require("../Controllers/commentController");
 const routers = express.Router();
 
 
@@ -24,4 +28,4 @@ routers.use((err,req,res,next)=>{
 	})
 })
 
-module.exports = routers
+module.exports = routers;
