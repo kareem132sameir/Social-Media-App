@@ -49,40 +49,21 @@ const getAllPostsByLoggedInUser = async (req, res, next) => {
 };
 //127.0.0.1:8080/posts:/{postid}/comments
 
-const getAllCommentsByPost = async (req, res, next) => {
-  const { postId } = req.params;
+//http://localhost:8080/postId/comments
+const getAllCommentsByPost = async (req, res,next) => {
+  try
+  {
+    const { postId } = req.params;
+    const comments = await Comment.find({ postId });
+    if(comments.length==0) return next(new AppError('no comments yet on this post'));
+    res.send({ message: "All comments retrieved successfully", comments });
+  }
+  catch(err)
+  {
+    return next(err);
 
-  try {
-    const post = await Post.findById(postId)
-      .populate({
-        path: "comments",
-        select: "description",
-      })
-      .select("title");
-
-    if (!post) {
-      return next(new AppError("Post not found", 404));
-    }
-
-    console.log(post);
-
-    res.send({
-      message: "Post and comments retrieved successfully",
-      post,
-    });
-  } catch (error) {
-    return next(new AppError("Error retrieving comments", 500));
   }
 };
-
-//not finished
-// const getAllCommentsByPost = async (req, res, next) => {
-//   const { postId } = req.params;
-//   const comments = await Comment.find({ postId });
-//   if (comments.length == 0)
-//     return next(new AppError("no comments yet on this post"));
-//   res.send({ message: "All comments retrieved successfully", comments });
-// };
 
 /////////////post methods////////////////
 
@@ -126,13 +107,25 @@ const createPost = async (req, res, next) => {
 
 //http://localhost:8080/posts/:id
 
-const updatePostById = async (req, res, next) => {
-  try {
-    const post = await Post.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    res.send({ message: "Post updated successfully", post });
-  } catch (err) {
+const updatePostById = async (req, res,next) => {
+  try
+  {
+    const post=await Post.findById(req.params.id);
+    if(!post) return next(new AppError('this post does not exist'));
+    if(req.authorizedUser.id==post.userId)
+    {
+      const newpost = await Post.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+      });
+      res.send({ message: "Post updated successfully", newpost });
+    }
+    else
+    {
+      res.send({ message: "you can't edit other users posts" });
+    }
+  }
+  catch(err)
+  {
     return next(err);
   }
 };

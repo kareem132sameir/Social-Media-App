@@ -14,8 +14,11 @@ app.use(express.json());
 app.use(express.urlencoded());
 
 app.use("/users", userRoutes);
+
 app.use("/posts", verifyToken, postRouters);
-app.use("/comment", verifyToken, commentRouters);
+
+app.use("/comments", verifyToken, commentRouters);
+
 app.use("/review", verifyToken, ReviewRouters);
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
