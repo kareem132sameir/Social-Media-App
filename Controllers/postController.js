@@ -1,5 +1,4 @@
 const Post = require("../Models/posts");
-const Comment = require("../Models/comments");
 const User = require("../Models/Users");
 const AppError = require("../Helpers/AppError");
 
