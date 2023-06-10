@@ -11,8 +11,8 @@ const commentSchema = new Schema({
     type: Date,
   },
   userId: {
-    type: Schema.Types.ObjectId, // Change the type to ObjectId
-    ref: "User", // Reference the User model
+    type: Schema.Types.ObjectId,
+    ref: "User",
   },
   postId: {
     type: Schema.Types.ObjectId,
