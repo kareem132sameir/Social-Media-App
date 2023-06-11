@@ -18,15 +18,17 @@ const Review = require("../Models/reviewModel");
 // };
 const getAllPosts = async (req, res, next) => {
   try {
-    const posts = await Post.find();
+    // const posts = await Post.find();
+    const posts = await Post.find().populate("reviews");
+
     if (posts.length === 0) {
       return next(new AppError("No posts found!", 404));
     }
 
-    for (const post of posts) {
-      const reviews = await Review.find({ postId: post._id });
-      post.reviews = reviews;
-    }
+    // for (const post of posts) {
+    //   const reviews = await Review.find({ postId: post._id });
+    //   post.reviews = reviews;
+    // }
 
     res.send({ message: "All posts retrieved successfully", posts });
   } catch (error) {
@@ -39,16 +41,17 @@ const getAllPosts = async (req, res, next) => {
 const getPostById = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const post = await Post.findById(id).populate("reviews");
 
-    const post = await Post.findById(id);
+    // const post = await Post.findById(id);
 
     if (!post) {
       return next(new AppError("Post not found", 404));
     }
 
-    const reviews = await Review.find({ postId: id });
+    // const reviews = await Review.find({ postId: id });
 
-    post.reviews = reviews;
+    // post.reviews = reviews;
 
     res.send({ message: "Post retrieved successfully", post });
   } catch (err) {
@@ -70,19 +73,20 @@ const getAllPostsByUser = async (req, res, next) => {
   try {
     const { id } = req.params;
     const user = await User.findById(id);
+
     if (!user) {
       return next(new AppError("User does not exist", 404));
     }
 
-    const posts = await Post.find({ userId: id });
+    const posts = await Post.find({ userId: id }).populate("reviews");
     if (posts.length === 0) {
       return next(new AppError("No posts found!", 404));
     }
 
-    for (const post of posts) {
-      const reviews = await Review.find({ postId: post._id });
-      post.reviews = reviews;
-    }
+    // for (const post of posts) {
+    //   const reviews = await Review.find({ postId: post._id });
+    //   post.reviews = reviews;
+    // }
 
     res.send({ message: "All posts retrieved successfully", posts });
   } catch (err) {
@@ -103,15 +107,15 @@ const getAllPostsByUser = async (req, res, next) => {
 // };
 const getAllPostsByLoggedInUser = async (req, res, next) => {
   try {
-    const posts = await Post.find({ userId: req.id });
+    const posts = await Post.find({ userId: req.id }).populate("reviews");
     if (posts.length === 0) {
       return next(new AppError("No posts found!", 404));
     }
 
-    for (const post of posts) {
-      const reviews = await Review.find({ postId: post._id });
-      post.reviews = reviews;
-    }
+    // for (const post of posts) {
+    //   const reviews = await Review.find({ postId: post._id });
+    //   post.reviews = reviews;
+    // }
 
     res.send({ message: "All posts retrieved successfully", posts });
   } catch (err) {
