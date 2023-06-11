@@ -64,7 +64,6 @@ const signUp = async (req, res, next) => {
         password: hashed_password,
       });
       await newUser.save();
-      //   const token = jwt.sign({ id: newUser._id }, "mytoken");
       const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
 
       newUser.password = undefined;
@@ -86,7 +85,6 @@ const login = async (req, res, next) => {
     if (user) {
       const isMatch = await user.checkPassword(password);
       if (!isMatch) return next(new AppError("wrong password"));
-      //   const token = jwt.sign({ id: user._id }, "mytoken");
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
       user.password = undefined;
