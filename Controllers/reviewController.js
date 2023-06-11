@@ -3,12 +3,51 @@ const Post = require("../Models/posts");
 const AppError = require("../Helpers/AppError");
 const User = require("../Models/Users");
 
+// const topFiveRatedPosts = async (req, res, next) => {
+//   try {
+//     const topPosts = await Review.find()
+//       .sort({ rate: -1 })
+//       .limit(5)
+//       .populate("postId", "title");
+
+//     res.send(topPosts);
+//   } catch (error) {
+//     return next(error);
+//   }
+// };
+
 const topFiveRatedPosts = async (req, res, next) => {
   try {
-    const topPosts = await Review.find()
-      .sort({ rate: -1 })
-      .limit(5)
-      .populate("postId", "title");
+    const topPosts = await Post.aggregate([
+      {
+        $lookup: {
+          from: "reviews",
+          localField: "reviews",
+          foreignField: "_id",
+          as: "reviewDetails",
+        },
+      },
+      {
+        $addFields: {
+          averageRating: { $avg: "$reviewDetails.rate" },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          userId: 1,
+          publishDate: 1,
+          averageRating: 1,
+        },
+      },
+      {
+        $sort: { averageRating: -1 },
+      },
+      {
+        $limit: 5,
+      },
+    ]);
 
     res.send(topPosts);
   } catch (error) {
@@ -16,44 +55,7 @@ const topFiveRatedPosts = async (req, res, next) => {
   }
 };
 
-// const topFiveRatedPosts = async (req, res, next) => {
-//   try {
-//     const topPosts = await Post.aggregate([
-//       {
-//         $lookup: {
-//           from: "reviews",
-//           localField: "reviews",
-//           foreignField: "_id",
-//           as: "reviewDetails",
-//         },
-//       },
-//       {
-//         $unwind: "$reviewDetails",
-//       },
-//       {
-//         $sort: { "reviewDetails.rate": -1 },
-//       },
-//       {
-//         $group: {
-//           _id: "$_id",
-//           title: { $first: "$title" },
-//           userId: { $first: "$userId" },
-//           publishDate: { $first: "$publishDate" },
-//           rate: { $first: "$reviewDetails.rate" },
-//         },
-//       },
-//       {
-//         $sort: { rate: -1 },
-//       },
-//       {
-//         $limit: 5,
-//       },
-//     ]);
-//     res.send(topPosts);
-//   } catch (error) {
-//     return next(error);
-//   }
-// };
+module.exports = topFiveRatedPosts;
 
 const createReview = async (req, res, next) => {
   const { description, postId, rate } = req.body;
