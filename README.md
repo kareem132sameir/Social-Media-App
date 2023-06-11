@@ -51,6 +51,7 @@ Project Structure
 - index.js
 
 - Models
+
   -> posts.js
 
   -> reviewModel.js
@@ -63,6 +64,7 @@ Project Structure
 - README.md
 
 - Routes
+
   -> commentRoute.js
 
   -> postRoute.js
