@@ -25,25 +25,38 @@ Project Structure
   -> Images-2
 
 - Controllers
+
   -> authenticationController.js
+
   -> commentController.js
+
   -> postController.js
+
   -> reviewController.js
+
 
 - db.js
 
 - Helpers
+
   -> AppError.js
+
   -> tokenAuth.js
+
   -> validationSchema.js
+
   -> verifyAdmin.js
+
 
 - index.js
 
 - Models
   -> posts.js
+
   -> reviewModel.js
+
   -> Users.js
+
 
 - package-lock.json
 - package.json
@@ -51,8 +64,12 @@ Project Structure
 
 - Routes
   -> commentRoute.js
+
   -> postRoute.js
+
   -> reviewRoute.js
+
   -> userRoutes.js
+  
 
 - uploads
