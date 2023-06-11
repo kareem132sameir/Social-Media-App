@@ -20,6 +20,11 @@ const reviewSchema = new Schema({
     type: String,
     required: true,
   },
+  // postId: {
+  //   type: Schema.Types.ObjectId, // Update the data type to ObjectId
+  //   ref: "Post", // Reference the "Post" model
+  //   required: true,
+  // },
 });
 const Review = mongoose.model("Review", reviewSchema);
 module.exports = Review;

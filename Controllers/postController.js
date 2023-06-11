@@ -18,17 +18,22 @@ const Review = require("../Models/reviewModel");
 // };
 const getAllPosts = async (req, res, next) => {
   try {
-    const posts = await Post.find();
-    if (posts.length === 0) {
+    // const posts = await Post.find();
+    // if (posts.length === 0) {
+    //   return next(new AppError("No posts found!", 404));
+    // }
+
+    // for (const post of posts) {
+    //   const reviews = await Review.find({ postId: post._id });
+    //   post.reviews = reviews;
+    // }
+    const populatedPosts = await Post.find().populate("reviews");
+    // console.log(req);
+    if (populatedPosts.length === 0) {
       return next(new AppError("No posts found!", 404));
     }
 
-    for (const post of posts) {
-      const reviews = await Review.find({ postId: post._id });
-      post.reviews = reviews;
-    }
-
-    res.send({ message: "All posts retrieved successfully", posts });
+    res.send({ message: "All posts retrieved successfully", populatedPosts });
   } catch (error) {
     return next(error);
   }

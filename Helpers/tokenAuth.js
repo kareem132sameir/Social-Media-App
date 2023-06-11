@@ -7,7 +7,7 @@ const verifyToken = async (req, res, next) => {
   const token = req.headers.authorization;
   if (!token) return next(new AppError("please provide a token"));
   // const id = jwt.verify(token, "mytoken").id;
-  const secretKey = process.env.JWT_SECRET; // Load the secret key from environment variable
+  const secretKey = "mytoken"; // Load the secret key from environment variable
   const id = jwt.verify(token, secretKey).id;
 
   req.authorizedUser = await User.findById(id);

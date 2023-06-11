@@ -4,7 +4,6 @@ const AppError = require("../Helpers/AppError");
 const User = require("../Models/Users");
 
 const createReview = async (req, res, next) => {
-
   const { description, postId, rate } = req.body;
   if (!description || !postId || rate === undefined) {
     return next(new AppError("You must provide all review data", 400));
@@ -14,23 +13,22 @@ const createReview = async (req, res, next) => {
   }
   try {
     const post = await Post.findById(postId);
-
     if (!post) {
       return next(new AppError("Post not found", 404));
     }
-
     const review = new Review({
       description,
       rate: rate,
       userId: req.id, // Accessing the user ID from req.authorizedUser
-      postId
+      postId,
     });
+    post.reviews.push(review._id);
+    await post.save(); // Save the updated post to the database
 
     const savedReview = await review.save();
     console.log("Saved Review:", savedReview);
     res.send(savedReview);
-  } catch (error) 
-  {
+  } catch (error) {
     return next(error);
   }
 };
@@ -59,9 +57,7 @@ const updateReview = async (req, res, next) => {
     review.rate = rate;
     const updatedReview = await review.save();
     res.send({ message: "Review updated successfully", updatedReview });
-  } 
-  catch (error) 
-  {
+  } catch (error) {
     return next(new AppError("Error updating review", 500));
   }
 };
