@@ -20,6 +20,11 @@ const topFiveRatedPosts = async (req, res, next) => {
   try {
     const topPosts = await Post.aggregate([
       {
+        $match: {
+          reviews: { $exists: true, $ne: [] },
+        },
+      },
+      {
         $lookup: {
           from: "reviews",
           localField: "reviews",
@@ -54,8 +59,6 @@ const topFiveRatedPosts = async (req, res, next) => {
     return next(error);
   }
 };
-
-module.exports = topFiveRatedPosts;
 
 const createReview = async (req, res, next) => {
   const { description, postId, rate } = req.body;
