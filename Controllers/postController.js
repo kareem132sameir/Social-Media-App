@@ -192,6 +192,11 @@ const deletePostById = async (req, res, next) => {
       req.authorizedUser.role == "admin"
     ) {
       await Post.findByIdAndDelete(req.params.id);
+      const postId = req.params.id;
+      await Review.deleteMany({ postId });
+
+      // console.log(reviews);
+
       res.send({ message: "Post deleted successfully" });
     } else {
       res.send({ message: "you can't delete other users posts" });
@@ -218,6 +223,8 @@ const deleteAllPostsByUser = async (req, res, next) => {
   try {
     const { userId } = req.params;
     await Post.deleteMany({ userId });
+    // await Review.deleteMany({ postId });
+
     res.send({ message: "All posts deleted successfully" });
   } catch (err) {
     return next(err);
