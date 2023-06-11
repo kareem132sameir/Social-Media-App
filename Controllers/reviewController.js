@@ -28,6 +28,19 @@ const createReview = async (req, res, next) => {
 
     const savedReview = await review.save();
     console.log("Saved Review:", savedReview);
+
+
+    // Verify the user ID matches the logged-in user
+    // if (req.authorizedUser.id !== savedReview.userId) {
+    //   return next(
+    //     new AppError("User ID does not match the logged-in user", 401)
+    //   );
+    // }
+
+    post.reviews.push(savedReview._id);
+    await post.save();
+
+
     res.send(savedReview);
   } catch (error) 
   {
