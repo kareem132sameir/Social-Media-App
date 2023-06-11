@@ -1,8 +1,8 @@
 const express = require("express");
 const app = express();
-const port = 8080;
 require("./db.js");
-
+require("dotenv").config();
+const port = process.env.PORT;
 const userRoutes = require("./Routes/userRoutes");
 const postRouters = require("./Routes/postRoute.js");
 const commentRouters = require("./Routes/commentRoute.js");
