@@ -3,8 +3,59 @@ const Post = require("../Models/posts");
 const AppError = require("../Helpers/AppError");
 const User = require("../Models/Users");
 
-const createReview = async (req, res, next) => {
+const topFiveRatedPosts = async (req, res, next) => {
+  try {
+    const topPosts = await Review.find()
+      .sort({ rate: -1 })
+      .limit(5)
+      .populate("postId", "title");
 
+    res.send(topPosts);
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// const topFiveRatedPosts = async (req, res, next) => {
+//   try {
+//     const topPosts = await Post.aggregate([
+//       {
+//         $lookup: {
+//           from: "reviews",
+//           localField: "reviews",
+//           foreignField: "_id",
+//           as: "reviewDetails",
+//         },
+//       },
+//       {
+//         $unwind: "$reviewDetails",
+//       },
+//       {
+//         $sort: { "reviewDetails.rate": -1 },
+//       },
+//       {
+//         $group: {
+//           _id: "$_id",
+//           title: { $first: "$title" },
+//           userId: { $first: "$userId" },
+//           publishDate: { $first: "$publishDate" },
+//           rate: { $first: "$reviewDetails.rate" },
+//         },
+//       },
+//       {
+//         $sort: { rate: -1 },
+//       },
+//       {
+//         $limit: 5,
+//       },
+//     ]);
+//     res.send(topPosts);
+//   } catch (error) {
+//     return next(error);
+//   }
+// };
+
+const createReview = async (req, res, next) => {
   const { description, postId, rate } = req.body;
   if (!description || !postId || rate === undefined) {
     return next(new AppError("You must provide all review data", 400));
@@ -23,12 +74,11 @@ const createReview = async (req, res, next) => {
       description,
       rate: rate,
       userId: req.id, // Accessing the user ID from req.authorizedUser
-      postId
+      postId,
     });
 
     const savedReview = await review.save();
     console.log("Saved Review:", savedReview);
-
 
     // Verify the user ID matches the logged-in user
     // if (req.authorizedUser.id !== savedReview.userId) {
@@ -40,10 +90,8 @@ const createReview = async (req, res, next) => {
     post.reviews.push(savedReview._id);
     await post.save();
 
-
     res.send(savedReview);
-  } catch (error) 
-  {
+  } catch (error) {
     return next(error);
   }
 };
@@ -72,9 +120,7 @@ const updateReview = async (req, res, next) => {
     review.rate = rate;
     const updatedReview = await review.save();
     res.send({ message: "Review updated successfully", updatedReview });
-  } 
-  catch (error) 
-  {
+  } catch (error) {
     return next(new AppError("Error updating review", 500));
   }
 };
@@ -96,4 +142,9 @@ const deleteReview = async (req, res, next) => {
   }
 };
 
-module.exports = { createReview, updateReview, deleteReview };
+module.exports = {
+  topFiveRatedPosts,
+  createReview,
+  updateReview,
+  deleteReview,
+};

@@ -9,6 +9,8 @@ const {
   passwordSchema,
 } = require("../Helpers/validationSchema");
 const jwt = require("jsonwebtoken");
+const Post = require("../Models/posts");
+const Review = require("../Models/reviewModel");
 const cloudinary = require("cloudinary").v2;
 
 cloudinary.config({
@@ -159,6 +161,10 @@ const deleteUser = async (req, res, next) => {
     const user = await User.findOne({ email: email });
     if (!user) return next(new AppError("user does not exist"));
     await User.deleteOne({ email: email });
+
+    await Post.deleteMany({ userId: user._id });
+    await Review.deleteMany({ userId: user._id });
+
     res.send("removed user");
   } catch (error) {
     return next(error);

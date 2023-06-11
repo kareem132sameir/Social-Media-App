@@ -17,7 +17,8 @@ const reviewSchema = new Schema({
     required: true,
   },
   postId: {
-    type: String,
+    type: Schema.Types.ObjectId,
+    ref: "Post",
     required: true,
   },
 });
